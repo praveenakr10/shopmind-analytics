@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Colors */
-  --brand-50:  #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-400: #818cf8;
-  --brand-500: #6366f1;
-  --brand-600: #4f46e5;
-  --brand-700: #4338ca;
+  /* Brand */
+  --brand-50:  #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
 
   --emerald-400: #34d399;
   --emerald-500: #10b981;
@@ -18,33 +18,33 @@
 
   /* Sidebar */
   --sidebar-width: 240px;
-  --sidebar-bg: #0f0f23;
-  --sidebar-border: rgba(255,255,255,0.06);
-  --sidebar-text: #94a3b8;
-  --sidebar-active-bg: rgba(99,102,241,0.15);
-  --sidebar-active-text: #818cf8;
-  --sidebar-hover-bg: rgba(255,255,255,0.04);
+  --sidebar-bg: linear-gradient(180deg, #1e3a8a, #2563eb);
+  --sidebar-border: #e2e8f0;
+  --sidebar-text: #ffffff;
+  --sidebar-active-bg: rgba(255,255,255,0.15);
+  --sidebar-active-text: #ffffff;
+  --sidebar-hover-bg: rgba(255,255,255,0.08);
 
   /* Background */
-  --bg-primary: #0a0a1a;
-  --bg-secondary: #111127;
-  --bg-card: #16163a;
-  --bg-card-hover: #1a1a42;
-  --bg-elevated: #1e1e4a;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f9fafb;
+  --bg-elevated: #ffffff;
 
   /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
-  --text-accent: #818cf8;
+  --text-accent: #2563eb;
 
   /* Borders */
-  --border: rgba(255,255,255,0.08);
-  --border-strong: rgba(255,255,255,0.14);
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
 
   /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
-  --shadow-glow: 0 0 24px rgba(99,102,241,0.15);
+  --shadow-card: 0 4px 16px rgba(15,23,42,0.05);
+  --shadow-glow: 0 0 16px rgba(37,99,235,0.15);
 
   /* Typography */
   --font: 'Inter', -apple-system, system-ui, sans-serif;
