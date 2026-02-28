@@ -171,7 +171,6 @@ export default function DashboardPage() {
         <div className="card metrics-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
             <h3>Model Transparency Metrics</h3>
-            <span className="badge badge-blue" style={{ fontSize: '0.68rem' }}>v3.0</span>
             <span className="badge badge-gray" style={{ fontSize: '0.68rem' }}>Training Results</span>
           </div>
           <div className="metrics-grid">
@@ -182,9 +181,7 @@ export default function DashboardPage() {
             <MetricItem label="ROC-AUC" value={metrics.classification?.roc_auc} note="Validated discrimination" />
             <MetricItem label="Min Support" value={`${(metrics.association_rules?.min_support * 100 || 20)}%`} note="Assoc. rule threshold" />
           </div>
-          <div style={{ marginTop: '0.85rem', fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-            Models last modified: {metrics.model_files?.kmeans || 'Unknown'} (KMeans) · {metrics.model_files?.pipeline || 'Unknown'} (Pipeline)
-          </div>
+          
         </div>
       )}
     </div>
