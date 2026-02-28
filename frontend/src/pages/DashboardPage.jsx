@@ -1,162 +1,155 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../utils/api';
+import { SEG_COLORS, TOOLTIP_STYLE, GRID_COLOR, AXIS_COLOR, fmtCurrency } from '../utils/chartConfig';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ScatterChart, Scatter, Cell, PieChart, Pie, Legend,
 } from 'recharts';
 import './DashboardPage.css';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444'];
-
-const KPICard = ({ label, value, sub, color, icon }) => (
-  <div className="kpi-card" style={{ '--accent': color }}>
-    <div className="kpi-icon">{icon}</div>
-    <div className="kpi-body">
-      <div className="kpi-value">{value}</div>
-      <div className="kpi-label">{label}</div>
-      {sub && <div className="kpi-sub">{sub}</div>}
-    </div>
-  </div>
-);
+const PRIORITY = { premium: 1, loyal: 2, occasional: 3, discount: 4 };
 
 export default function DashboardPage() {
   const [segments, setSegments] = useState(null);
   const [projection, setProjection] = useState(null);
+  const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([api.getSegments(), api.getProjection()])
-      .then(([segsData, projData]) => {
-        setSegments(segsData.segments);
-        setProjection(projData.projections);
+    Promise.all([api.getSegments(), api.getProjection(), api.getModelMetrics()])
+      .then(([segsData, projData, metricsData]) => {
+        const sorted = [...(segsData.segments || [])].sort(
+          (a, b) => (PRIORITY[a.id] || 9) - (PRIORITY[b.id] || 9)
+        );
+        setSegments(sorted);
+        setProjection(projData.projections || []);
+        setMetrics(metricsData);
         setError(null);
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div className="loading-wrap"><div className="spinner" /><p>Loading dashboard...</p></div>
-  );
+  if (loading) return <div className="loading-wrap"><div className="spinner" /><p>Loading platform data...</p></div>;
 
+  // ── Derived financial metrics (computed from real segment data) ────────
   const totalCustomers = segments?.reduce((s, seg) => s + (seg.size || 0), 0) || 0;
-  const avgSpend = segments?.length
-    ? (segments.reduce((s, seg) => s + seg.avg_spend, 0) / segments.length).toFixed(2)
-    : 0;
+  const totalRevenue = segments?.reduce((s, seg) => s + ((seg.avg_spend || 0) * (seg.size || 0)), 0) || 0;
+  const avgSpend = totalCustomers > 0 ? totalRevenue / totalCustomers : 0;
   const avgRating = segments?.length
-    ? (segments.reduce((s, seg) => s + seg.avg_rating, 0) / segments.length).toFixed(2)
-    : 0;
-  const avgDiscount = segments?.length
-    ? (segments.reduce((s, seg) => s + seg.discount_usage_pct, 0) / segments.length).toFixed(1)
-    : 0;
+    ? segments.reduce((s, seg) => s + (seg.avg_rating || 0), 0) / segments.length : 0;
 
-  const spendData = segments?.map(s => ({ name: s.label.split(' ')[0], spend: s.avg_spend })) || [];
-  const discountData = segments?.map(s => ({
+  const spendData = segments?.map(s => ({
     name: s.label.split(' ')[0],
-    value: s.discount_usage_pct,
+    spend: +(s.avg_spend || 0).toFixed(2),
+    color: SEG_COLORS[s.label] || '#7c89fa',
   })) || [];
 
+  const revenuePieData = segments?.map(s => ({
+    name: s.label.split(' ')[0],
+    value: +((s.avg_spend || 0) * (s.size || 0)).toFixed(0),
+    color: SEG_COLORS[s.label] || '#7c89fa',
+  })) || [];
+
+  const priorityRank = { premium: 'High Priority', loyal: 'High Priority', occasional: 'Medium', discount: 'Manage Risk' };
+  const riskColor = { 'High Priority': 'badge-blue', 'Medium': 'badge-yellow', 'Manage Risk': 'badge-red' };
+
   return (
-    <div className="dashboard">
+    <div>
       <div className="page-header">
         <h1>Shopper Behavior Intelligence</h1>
         <p>KMeans behavioral segmentation · {totalCustomers.toLocaleString()} customers analyzed</p>
       </div>
 
-      {error && <div className="error-banner">⚠ {error}</div>}
+      {error && <div className="error-banner">{error}</div>}
 
-      {/* KPI Cards */}
-      <div className="grid-4" style={{ marginBottom: '2rem' }}>
-        <KPICard label="Total Customers" value={totalCustomers.toLocaleString()} icon="👥" color="#6366f1" sub="Across 4 segments" />
-        <KPICard label="Avg. Spend / Order" value={`$${avgSpend}`} icon="💳" color="#10b981" sub="All segments" />
-        <KPICard label="Avg. Review Rating" value={`${avgRating} / 5`} icon="⭐" color="#f59e0b" sub="From dataset" />
-        <KPICard label="Avg. Discount Usage" value={`${avgDiscount}%`} icon="🏷️" color="#ef4444" sub="Customers using discounts" />
+      {/* KPI Row */}
+      <div className="grid-4" style={{ marginBottom: '1.75rem' }}>
+        <KpiCard label="Total Customers" value={totalCustomers.toLocaleString()} sub="Across 4 behavioral segments" accent="var(--accent)" />
+        <KpiCard label="Est. Total Revenue" value={`$${(totalRevenue / 1000).toFixed(1)}K`} sub="Avg spend × segment size (estimated)" accent="#059669" />
+        <KpiCard label="Avg Spend / Order" value={fmtCurrency(avgSpend)} sub="Across all segments" accent="#d97706" />
+        <KpiCard label="Avg Review Rating" value={`${avgRating.toFixed(2)} / 5`} sub="Customer satisfaction" accent="#dc2626" />
       </div>
 
       {/* Segment Cards */}
       <h2 style={{ marginBottom: '1rem' }}>Customer Segments</h2>
-      <div className="grid-2" style={{ marginBottom: '2rem' }}>
-        {segments?.map((seg, i) => (
-          <Link key={seg.id} to={`/segment/${seg.id}`} className="segment-card" style={{ '--seg-color': COLORS[i] }}>
-            <div className="seg-card-header">
-              <span className="seg-icon">{seg.icon}</span>
-              <span className="seg-label">{seg.label}</span>
-              <span className="seg-size">{(seg.size || 0).toLocaleString()} customers</span>
-            </div>
-            <div className="seg-metrics">
-              <div className="seg-metric"><span>Avg Spend</span><strong>${seg.avg_spend?.toFixed(2)}</strong></div>
-              <div className="seg-metric"><span>Rating</span><strong>{seg.avg_rating}</strong></div>
-              <div className="seg-metric"><span>Discount %</span><strong>{seg.discount_usage_pct?.toFixed(1)}%</strong></div>
-              <div className="seg-metric"><span>Top Cat.</span><strong>{seg.top_category}</strong></div>
-            </div>
-            <div className="seg-footer">View segment detail →</div>
-          </Link>
-        ))}
+      <div className="grid-2" style={{ marginBottom: '1.75rem' }}>
+        {segments?.map(seg => {
+          const segColor = SEG_COLORS[seg.label] || '#7c89fa';
+          const segRevenue = ((seg.avg_spend || 0) * (seg.size || 0));
+          const revPct = totalRevenue > 0 ? ((segRevenue / totalRevenue) * 100).toFixed(1) : 0;
+          const rank = priorityRank[seg.id] || 'Medium';
+          return (
+            <Link key={seg.id} to={`/segment/${seg.id}`} className="seg-card" style={{ '--sc': segColor }}>
+              <div className="seg-card-top">
+                <div className="seg-card-label">{seg.label}</div>
+                <span className={`badge ${riskColor[rank]}`}>{rank}</span>
+              </div>
+              <div className="seg-card-meta">
+                {(seg.size || 0).toLocaleString()} customers · {revPct}% of revenue
+              </div>
+              <div className="seg-card-metrics">
+                <div className="seg-metric"><span>Avg Spend</span><strong>{fmtCurrency(seg.avg_spend)}</strong></div>
+                <div className="seg-metric"><span>Rating</span><strong>{seg.avg_rating?.toFixed(2)}</strong></div>
+                <div className="seg-metric"><span>Discount %</span><strong>{seg.discount_usage_pct?.toFixed(1)}%</strong></div>
+                <div className="seg-metric"><span>Top Cat.</span><strong>{seg.top_category}</strong></div>
+              </div>
+              <div className="seg-card-footer">View segment →</div>
+            </Link>
+          );
+        })}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid-2" style={{ marginBottom: '2rem' }}>
+      {/* Charts */}
+      <div className="grid-2" style={{ marginBottom: '1.75rem' }}>
         <div className="card">
-          <h3 style={{ marginBottom: '1.2rem' }}>Avg Spend by Segment</h3>
+          <h3 style={{ marginBottom: '1.2rem' }}>Average Spend by Segment</h3>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={spendData} barSize={40}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 12 }} />
-              <YAxis stroke="#64748b" tick={{ fontSize: 12 }} unit="$" />
-              <Tooltip
-                contentStyle={{ background: '#16163a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                formatter={v => [`$${v.toFixed(2)}`, 'Avg Spend']}
-              />
+            <BarChart data={spendData} barSize={44}>
+              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <XAxis dataKey="name" stroke={AXIS_COLOR} tick={{ fontSize: 12 }} />
+              <YAxis stroke={AXIS_COLOR} tick={{ fontSize: 12 }} tickFormatter={v => `$${v}`} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={v => [`$${v.toFixed(2)}`, 'Avg Spend']} />
               <Bar dataKey="spend" radius={[6, 6, 0, 0]}>
-                {spendData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+                {spendData.map((d, i) => <Cell key={i} fill={d.color} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         <div className="card">
-          <h3 style={{ marginBottom: '1.2rem' }}>Discount Usage Distribution</h3>
+          <h3 style={{ marginBottom: '1.2rem' }}>Revenue Contribution by Segment</h3>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
-                data={discountData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%" cy="50%"
-                innerRadius={55}
-                outerRadius={90}
-                paddingAngle={3}
-                label={({ name, value }) => `${name} ${value?.toFixed(1)}%`}
-                labelLine={false}
+                data={revenuePieData} dataKey="value" nameKey="name"
+                cx="50%" cy="50%" innerRadius={58} outerRadius={90} paddingAngle={3}
               >
-                {discountData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+                {revenuePieData.map((d, i) => <Cell key={i} fill={d.color} />)}
               </Pie>
-              <Tooltip
-                contentStyle={{ background: '#16163a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                formatter={v => [`${v.toFixed(1)}%`, 'Discount Usage']}
-              />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={v => [`$${(v / 1000).toFixed(1)}K`, 'Est. Revenue']} />
+              <Legend iconType="circle" formatter={(name) => <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{name}</span>} />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Cluster Scatter */}
-      {projection && (
-        <div className="card">
-          <h3 style={{ marginBottom: '1.2rem' }}>Segment Cluster Projection (PCA 2D)</h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="x" type="number" name="PC1" stroke="#64748b" tick={{ fontSize: 12 }} label={{ value: 'PC1', position: 'insideBottomRight', fill: '#64748b' }} />
-              <YAxis dataKey="y" type="number" name="PC2" stroke="#64748b" tick={{ fontSize: 12 }} label={{ value: 'PC2', angle: -90, position: 'insideLeft', fill: '#64748b' }} />
-              <Tooltip
-                contentStyle={{ background: '#16163a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                formatter={(v, n) => [v?.toFixed(2), n]}
-                labelFormatter={(_, p) => p[0]?.payload?.label || ''}
-              />
+      {/* PCA Projection */}
+      {projection?.length > 0 && (
+        <div className="card" style={{ marginBottom: '1.75rem' }}>
+          <div className="chart-header">
+            <h3>Segment Cluster Projection (PCA 2D)</h3>
+            <span className="chart-note">Principal Component Analysis — PC1: spending/frequency, PC2: discount/loyalty axes</span>
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <ScatterChart margin={{ top: 16, right: 24, bottom: 16, left: 16 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <XAxis dataKey="x" type="number" name="PC1" stroke={AXIS_COLOR} tick={{ fontSize: 11 }} label={{ value: 'PC1 (Spend · Frequency)', position: 'insideBottomRight', fill: AXIS_COLOR, fontSize: 11, dy: 12 }} />
+              <YAxis dataKey="y" type="number" name="PC2" stroke={AXIS_COLOR} tick={{ fontSize: 11 }} label={{ value: 'PC2 (Discount · Loyalty)', angle: -90, position: 'insideLeft', fill: AXIS_COLOR, fontSize: 11 }} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={(_, p) => p?.[0]?.payload?.label || ''} formatter={(v, n) => [v?.toFixed(3), n]} />
               <Scatter data={projection} shape="circle">
                 {projection.map((p, i) => <Cell key={i} fill={p.color} />)}
               </Scatter>
@@ -165,13 +158,56 @@ export default function DashboardPage() {
           <div className="scatter-legend">
             {projection.map((p, i) => (
               <span key={i} className="legend-item">
-                <span className="legend-dot" style={{ background: p.color }}></span>
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: p.color, display: 'inline-block', flexShrink: 0 }} />
                 {p.label}
               </span>
             ))}
           </div>
         </div>
       )}
+
+      {/* Model Metrics Mini Card */}
+      {metrics && (
+        <div className="card metrics-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+            <h3>Model Transparency Metrics</h3>
+            <span className="badge badge-blue" style={{ fontSize: '0.68rem' }}>v3.0</span>
+            <span className="badge badge-gray" style={{ fontSize: '0.68rem' }}>Training Results</span>
+          </div>
+          <div className="metrics-grid">
+            <MetricItem label="Silhouette Score" value={metrics.clustering?.silhouette_score} note="Clustering quality (train)" />
+            <MetricItem label="Regression R²" value={metrics.regression?.r2} note="Revenue model fit (train)" />
+            <MetricItem label="Regression MAE" value={`$${metrics.regression?.mae_usd}`} note="Mean spend error" />
+            <MetricItem label="Train Accuracy" value={metrics.classification?.accuracy} note="Subscription classifier" />
+            <MetricItem label="ROC-AUC" value={metrics.classification?.roc_auc} note="Validated discrimination" />
+            <MetricItem label="Min Support" value={`${(metrics.association_rules?.min_support * 100 || 20)}%`} note="Assoc. rule threshold" />
+          </div>
+          <div style={{ marginTop: '0.85rem', fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+            Models last modified: {metrics.model_files?.kmeans || 'Unknown'} (KMeans) · {metrics.model_files?.pipeline || 'Unknown'} (Pipeline)
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function KpiCard({ label, value, sub, accent }) {
+  return (
+    <div className="kpi-card" style={{ '--ac': accent }}>
+      <div className="kpi-accent" />
+      <div className="kpi-value">{value}</div>
+      <div className="kpi-label">{label}</div>
+      {sub && <div className="kpi-sub">{sub}</div>}
+    </div>
+  );
+}
+
+function MetricItem({ label, value, note }) {
+  return (
+    <div className="metric-item">
+      <div className="metric-value">{value ?? '—'}</div>
+      <div className="metric-label">{label}</div>
+      <div className="metric-note">{note}</div>
     </div>
   );
 }

@@ -1,151 +1,207 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../utils/api';
+import { SEG_COLORS, TOOLTIP_STYLE, GRID_COLOR, AXIS_COLOR, fmtCurrency } from '../utils/chartConfig';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Cell, ScatterChart, Scatter, ZAxis,
+  Cell, Legend,
 } from 'recharts';
 import './AffinityPage.css';
 
-const SEGMENTS = ['Premium Urgent Buyers', 'Loyal Frequent Buyers', 'Occasional Buyers', 'Discount-Driven Shoppers'];
-const SEG_COLORS = { 'Premium Urgent Buyers': '#6366f1', 'Loyal Frequent Buyers': '#10b981', 'Occasional Buyers': '#f59e0b', 'Discount-Driven Shoppers': '#ef4444' };
-const SEG_SHORT = { 'Premium Urgent Buyers': 'Premium', 'Loyal Frequent Buyers': 'Loyal', 'Occasional Buyers': 'Occasional', 'Discount-Driven Shoppers': 'Discount' };
+const LIFT_BADGE = {
+  Strong: 'badge-blue',
+  Moderate: 'badge-yellow',
+  Weak: 'badge-gray',
+};
 
-function LiftBadge({ lift }) {
-  const color = lift >= 2 ? '#10b981' : lift >= 1.3 ? '#f59e0b' : '#94a3b8';
-  return <span style={{ color, fontWeight: 600 }}>{lift?.toFixed(3)}</span>;
+function exportCsv(data, filename) {
+  if (!data?.length) return;
+  const keys = Object.keys(data[0]);
+  const csv = [keys.join(','), ...data.map(r => keys.map(k => `"${r[k]}"`).join(','))].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = filename; a.click();
 }
 
 export default function AffinityPage() {
   const [data, setData] = useState(null);
-  const [rules, setRules] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeSegment, setActiveSegment] = useState(null);
+  const [minLift, setMinLift] = useState(1.0);
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([api.getAffinity(), api.getAffinityRules(1.0)])
-      .then(([aff, r]) => {
-        setData(aff);
-        setRules(r);
-        setError(null);
-      })
+    api.getAffinity()
+      .then(d => setData(d))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="loading-wrap"><div className="spinner" /><p>Mining association rules...</p></div>;
-  if (error) return <div className="error-banner">⚠ {error}</div>;
-  if (!data) return null;
+  if (loading) return <div className="loading-wrap"><div className="spinner" /><p>Mining affinity patterns...</p></div>;
 
-  const categories = data.categories || [];
-  const matrix = data.affinity_matrix || [];
-  const topRules = rules?.rules || [];
+  const segments = data?.segments || [];
+  const categories = data?.categories || [];
+  const matrix = data?.affinity_matrix || [];
+  const rules = (data?.association_rules || []).filter(r => r.lift >= minLift);
+  const bundles = data?.top_bundles || [];
 
-  // Build grouped bar chart data: per category, value per segment
+  // Grouped bar chart: one group per category, bars per segment
   const groupedData = categories.map(cat => {
     const row = { cat };
-    matrix.forEach(m => {
-      row[SEG_SHORT[m.segment] || m.segment] = +(((m[cat] || 0) * 100)).toFixed(1);
+    segments.forEach(seg => {
+      const m = matrix.find(r => r.segment === seg);
+      row[seg.split(' ')[0]] = m ? +(m[cat] * 100).toFixed(1) : 0;
     });
     return row;
   });
 
-  const segKeys = matrix.map(m => SEG_SHORT[m.segment] || m.segment);
+  const segKeys = segments.map(s => s.split(' ')[0]);
 
   return (
     <div>
       <div className="page-header">
-        <h1>Product & Category Affinity</h1>
-        <p>Association rule mining · Segment-category behavioral patterns</p>
+        <h1>Product Affinity Analysis</h1>
+        <p>
+          Normalized category affinity per segment · Normalization: relative-to-segment-max
+          · Association rules mined at support ≥ {(data?.min_support * 100 || 20).toFixed(0)}%
+        </p>
       </div>
 
-      {/* Heatmap Table */}
-      <div className="card" style={{ marginBottom: '1.75rem', overflowX: 'auto' }}>
-        <h3 style={{ marginBottom: '1.2rem' }}>Category Affinity Matrix by Segment</h3>
-        <table className="affinity-table">
-          <thead>
-            <tr>
-              <th>Segment</th>
-              {categories.map(c => <th key={c}>{c}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {matrix.map((row, i) => (
-              <tr key={i}>
-                <td className="seg-name-cell">
-                  <span className="seg-dot" style={{ background: SEG_COLORS[row.segment] }}></span>
-                  {SEG_SHORT[row.segment] || row.segment}
-                </td>
-                {categories.map(cat => {
-                  const val = row[cat] || 0;
-                  const intensity = Math.min(val * 1.2, 1);
-                  return (
-                    <td key={cat} className="heat-cell" style={{ '--heat': intensity }}>
-                      {(val * 100).toFixed(1)}%
-                    </td>
-                  );
-                })}
-              </tr>
+      {error && <div className="error-banner">{error}</div>}
+
+      {/* Top Bundles */}
+      {bundles.length > 0 && (
+        <div style={{ marginBottom: '1.75rem' }}>
+          <h2 style={{ marginBottom: '1rem' }}>Top Product Bundles by Lift</h2>
+          <div className="grid-3">
+            {bundles.map((b, i) => (
+              <div key={i} className="bundle-card card">
+                <div className="bundle-rank">#{i + 1}</div>
+                <div className="bundle-pair">
+                  <span>{b.antecedent}</span>
+                  <span className="bundle-arrow">→</span>
+                  <span>{b.consequent}</span>
+                </div>
+                <div className="bundle-metrics">
+                  <div><span>Lift</span><strong>{b.lift?.toFixed(3)}</strong></div>
+                  <div><span>Confidence</span><strong>{(b.confidence * 100).toFixed(1)}%</strong></div>
+                  <div><span>Support</span><strong>{(b.support * 100).toFixed(0)}%</strong></div>
+                </div>
+                <span className={`badge ${LIFT_BADGE[b.lift_strength] || 'badge-gray'}`}>{b.lift_strength} association</span>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
+      )}
+
+      {/* Affinity Matrix Heatmap */}
+      <div className="card" style={{ marginBottom: '1.75rem' }}>
+        <div className="section-header">
+          <h3>Category Affinity Matrix</h3>
+          <span className="chart-note">Scores normalized within each segment (max=1.0). Color intensity indicates relative affinity.</span>
+        </div>
+        <div className="affinity-table-wrap">
+          <table className="affinity-table">
+            <thead>
+              <tr>
+                <th>Segment</th>
+                {categories.map(c => <th key={c}>{c}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {matrix.map(row => (
+                <tr key={row.segment}>
+                  <td className="seg-name-cell">
+                    <span style={{ background: SEG_COLORS[row.segment], width: 8, height: 8, borderRadius: '50%', display: 'inline-block', marginRight: 6 }} />
+                    {row.segment}
+                  </td>
+                  {categories.map(cat => {
+                    const val = row[cat] ?? 0;
+                    const pct = (val * 100).toFixed(1);
+                    const alpha = (val * 0.85 + 0.05).toFixed(2);
+                    return (
+                      <td key={cat} className="heat-cell"
+                        style={{ background: `rgba(91,106,249,${alpha})`, color: val > 0.5 ? '#fff' : 'var(--text-secondary)' }}>
+                        {pct}%
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="heatmap-legend">
+            <span>Low affinity</span>
+            <div className="heatmap-gradient" />
+            <span>High affinity</span>
+          </div>
+        </div>
       </div>
 
       {/* Grouped Bar Chart */}
       <div className="card" style={{ marginBottom: '1.75rem' }}>
-        <h3 style={{ marginBottom: '1.2rem' }}>Affinity Scores by Category & Segment</h3>
+        <h3 style={{ marginBottom: '1.2rem' }}>Affinity Score by Category and Segment</h3>
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={groupedData} barGap={2} barCategoryGap="25%">
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="cat" stroke="#64748b" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#64748b" tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
-            <Tooltip
-              contentStyle={{ background: '#16163a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-              formatter={v => [`${v}%`, '']}
-            />
+          <BarChart data={groupedData} barGap={3} barCategoryGap="25%">
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+            <XAxis dataKey="cat" stroke={AXIS_COLOR} tick={{ fontSize: 12 }} />
+            <YAxis stroke={AXIS_COLOR} tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} formatter={v => [`${v}%`, '']} />
+            <Legend formatter={(name) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{name}</span>} />
             {segKeys.map((key, i) => (
-              <Bar key={key} dataKey={key} fill={Object.values(SEG_COLORS)[i]} stackId="none" radius={[4, 4, 0, 0]} />
+              <Bar key={key} dataKey={key} fill={Object.values(SEG_COLORS)[i]} radius={[4, 4, 0, 0]} />
             ))}
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Association Rules */}
+      {/* Association Rules Table */}
       <div className="card">
-        <h3 style={{ marginBottom: '1.1rem' }}>
-          Association Rules
-          <span className="rules-count">{topRules.length} rules · sorted by lift</span>
-        </h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="rules-table">
+        <div className="section-header" style={{ marginBottom: '1rem' }}>
+          <div>
+            <h3>Association Rules</h3>
+            <span className="chart-note">Segment-level category co-occurrence analysis</span>
+          </div>
+          <div className="table-controls">
+            <label style={{ marginRight: '0.5rem', fontSize: '0.8rem' }}>Min Lift:</label>
+            <select value={minLift} onChange={e => setMinLift(+e.target.value)} style={{ width: 'auto', padding: '0.35rem 0.6rem' }}>
+              <option value={1.0}>1.0+</option>
+              <option value={1.5}>1.5+</option>
+              <option value={2.0}>2.0+</option>
+            </select>
+            <button className="btn-ghost" style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', marginLeft: '0.5rem' }}
+              onClick={() => exportCsv(rules, 'association_rules.csv')}>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        {rules.length === 0 ? (
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', padding: '1rem 0' }}>No rules meet the selected lift threshold.</p>
+        ) : (
+          <table className="data-table">
             <thead>
               <tr>
                 <th>Antecedent</th>
-                <th>→</th>
                 <th>Consequent</th>
                 <th>Support</th>
                 <th>Confidence</th>
                 <th>Lift</th>
+                <th>Strength</th>
               </tr>
             </thead>
             <tbody>
-              {topRules.map((rule, i) => (
+              {rules.map((r, i) => (
                 <tr key={i}>
-                  <td className="rule-cat">{rule.antecedent}</td>
-                  <td style={{ color: 'var(--text-muted)', textAlign: 'center' }}>→</td>
-                  <td className="rule-cat">{rule.consequent}</td>
-                  <td>{(rule.support * 100).toFixed(2)}%</td>
-                  <td>{(rule.confidence * 100).toFixed(1)}%</td>
-                  <td><LiftBadge lift={rule.lift} /></td>
+                  <td style={{ color: 'var(--text-primary)' }}>{r.antecedent}</td>
+                  <td style={{ color: 'var(--text-primary)' }}>{r.consequent}</td>
+                  <td>{(r.support * 100).toFixed(1)}%</td>
+                  <td>{(r.confidence * 100).toFixed(1)}%</td>
+                  <td style={{ fontWeight: 600 }}>{r.lift?.toFixed(3)}</td>
+                  <td><span className={`badge ${LIFT_BADGE[r.lift_strength] || 'badge-gray'}`}>{r.lift_strength}</span></td>
                 </tr>
               ))}
-              {topRules.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>No rules found</td></tr>
-              )}
             </tbody>
           </table>
-        </div>
+        )}
       </div>
     </div>
   );

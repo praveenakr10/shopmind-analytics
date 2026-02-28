@@ -1,0 +1,137 @@
+.seg-overview-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.seg-ov-item {
+    text-align: center;
+}
+
+.seg-ov-val {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.seg-ov-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.segs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.seg-detail-card {
+    display: block;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: all var(--ease);
+    border-left: 3px solid var(--sc, var(--accent));
+}
+
+.seg-detail-card:hover {
+    transform: translateY(-2px);
+    background: var(--bg-card-hover);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.sdc-rank {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 0.2rem 0.5rem;
+    border-radius: 100px;
+}
+
+.sdc-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-right: 2rem;
+}
+
+.sdc-label {
+    font-weight: 600;
+    font-size: 0.975rem;
+    margin-bottom: 0.15rem;
+}
+
+.sdc-size {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+}
+
+.sdc-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.85rem 0;
+}
+
+.sdc-progress-bar {
+    height: 4px;
+    border-radius: 100px;
+    background: var(--sc, var(--accent));
+    min-width: 8px;
+    transition: width 0.5s ease;
+}
+
+.sdc-rev-pct {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.sdc-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+}
+
+.sdc-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.sdc-metric span {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+.sdc-metric strong {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sdc-cta {
+    font-size: 0.76rem;
+    color: var(--text-accent);
+}
+
+@media (max-width: 820px) {
+
+    .segs-grid,
+    .seg-overview-row {
+        grid-template-columns: 1fr;
+    }
+}

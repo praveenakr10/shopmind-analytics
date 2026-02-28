@@ -1,0 +1,167 @@
+.exec-header-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 0;
+}
+
+.exec-export-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.export-msg {
+    font-size: 0.78rem;
+    border-radius: var(--radius-sm);
+    padding: 0.3rem 0.75rem;
+}
+
+.export-msg.success {
+    color: var(--green);
+    background: var(--green-dim);
+}
+
+.export-msg.error {
+    color: var(--red);
+    background: var(--red-dim);
+}
+
+.exec-overview-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.9rem;
+}
+
+.exec-ov-item {
+    text-align: center;
+    padding: 0.9rem;
+}
+
+.eov-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.2rem;
+}
+
+.eov-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.eov-note {
+    display: inline-block;
+}
+
+.insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.insight-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.1rem 1.3rem;
+}
+
+.ins-num {
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.ins-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.ins-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.risk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.risk-card {
+    padding: 1.1rem;
+}
+
+.risk-high {
+    border-left: 3px solid var(--red);
+}
+
+.risk-medium {
+    border-left: 3px solid var(--yellow);
+}
+
+.risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.risk-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.risk-body {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.opp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.opp-card {
+    border-left: 3px solid var(--green);
+    padding: 1.1rem;
+}
+
+.opp-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.4rem;
+}
+
+.opp-body {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .exec-overview-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .exec-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
