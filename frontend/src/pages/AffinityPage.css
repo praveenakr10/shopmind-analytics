@@ -1,0 +1,86 @@
+.affinity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.affinity-table th {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 0.7rem 0.9rem;
+    text-align: right;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+}
+
+.affinity-table th:first-child {
+    text-align: left;
+}
+
+.affinity-table td {
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: right;
+    color: var(--text-secondary);
+}
+
+.seg-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left !important;
+    font-weight: 500;
+    color: var(--text-primary) !important;
+    white-space: nowrap;
+}
+
+.seg-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.heat-cell {
+    background: rgba(99, 102, 241, calc(var(--heat, 0) * 0.35)) !important;
+    font-weight: 500;
+    color: var(--text-primary) !important;
+}
+
+.rules-count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 0.75rem;
+}
+
+.rules-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.rules-table th {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 0.65rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.rules-table td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+}
+
+.rule-cat {
+    font-weight: 500;
+    color: var(--text-primary) !important;
+}
+
+.rules-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}

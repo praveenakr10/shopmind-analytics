@@ -1,0 +1,77 @@
+.filter-container {
+  margin-bottom: 2rem;
+}
+
+.filter-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+}
+
+.segment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.segment-card {
+  background-color: white;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.segment-card:hover {
+  border-color: var(--color-accent-amber);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+  transform: translateY(-2px);
+}
+
+.segment-card.active {
+  background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-700) 100%);
+  border-color: var(--color-accent-amber);
+  color: white;
+}
+
+.segment-card.active .segment-name,
+.segment-card.active .segment-description {
+  color: white;
+}
+
+.segment-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-serif);
+}
+
+.segment-card.active .segment-name {
+  color: var(--color-accent-amber);
+}
+
+.segment-description {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.filter-empty {
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .segment-grid {
+    grid-template-columns: 1fr;
+  }
+}

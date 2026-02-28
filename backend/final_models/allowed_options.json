@@ -1,0 +1,34 @@
+{
+    "categories": [
+        "Accessories",
+        "Clothing",
+        "Footwear",
+        "Outerwear"
+    ],
+    "payment_methods": [
+        "Bank Transfer",
+        "Cash",
+        "Credit Card",
+        "Debit Card",
+        "PayPal",
+        "Venmo"
+    ],
+    "shipping_types": [
+        "2-Day Shipping",
+        "Express",
+        "Free Shipping",
+        "Next Day Air",
+        "Standard",
+        "Store Pickup"
+    ],
+    "seasons": [
+        "Fall",
+        "Spring",
+        "Summer",
+        "Winter"
+    ],
+    "genders": [
+        "Female",
+        "Male"
+    ]
+}

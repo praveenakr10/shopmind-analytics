@@ -1,0 +1,113 @@
+.compare-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.compare-selects {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.compare-select-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.compare-select-wrap label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.compare-select-wrap select {
+    width: 100%;
+}
+
+.compare-vs {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 0 0.5rem;
+    margin-top: 1.2rem;
+}
+
+.compare-btn {
+    background: var(--brand-500);
+    color: white;
+    padding: 0.65rem 1.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+
+.compare-btn:hover:not(:disabled) {
+    background: var(--brand-600);
+}
+
+.compare-seg-card {
+    border-top: 2px solid var(--sc) !important;
+}
+
+.csc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.csc-icon {
+    font-size: 1.8rem;
+}
+
+.csc-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.csc-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.csc-stat span {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.csc-stat strong {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.csc-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.csc-action {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.compare-empty {
+    text-align: center;
+    padding: 3rem !important;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}

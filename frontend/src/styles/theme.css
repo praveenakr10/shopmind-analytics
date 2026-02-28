@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Colors */
+  --brand-50:  #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+
+  --emerald-400: #34d399;
+  --emerald-500: #10b981;
+  --amber-400:   #fbbf24;
+  --amber-500:   #f59e0b;
+  --red-400:     #f87171;
+  --red-500:     #ef4444;
+
+  /* Sidebar */
+  --sidebar-width: 240px;
+  --sidebar-bg: #0f0f23;
+  --sidebar-border: rgba(255,255,255,0.06);
+  --sidebar-text: #94a3b8;
+  --sidebar-active-bg: rgba(99,102,241,0.15);
+  --sidebar-active-text: #818cf8;
+  --sidebar-hover-bg: rgba(255,255,255,0.04);
+
+  /* Background */
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #111127;
+  --bg-card: #16163a;
+  --bg-card-hover: #1a1a42;
+  --bg-elevated: #1e1e4a;
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-accent: #818cf8;
+
+  /* Borders */
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.14);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 24px rgba(99,102,241,0.15);
+
+  /* Typography */
+  --font: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Transitions */
+  --ease: 200ms ease;
+}

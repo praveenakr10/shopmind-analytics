@@ -1,0 +1,50 @@
+.affinity-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.affinity-header {
+  background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-700) 100%);
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  color: white;
+}
+
+.page-title {
+  font-family: var(--font-family-serif);
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.page-description {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  opacity: 0.9;
+}
+
+.affinity-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  border-left: 4px solid #ef4444;
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .affinity-header {
+    padding: 2rem 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+}

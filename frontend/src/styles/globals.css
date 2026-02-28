@@ -1,0 +1,2 @@
+/* globals.css — re-export of theme variables (imported by main.jsx) */
+@import './theme.css';

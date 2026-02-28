@@ -1,0 +1,139 @@
+/* Risk Indicator - Risk Visualization Component */
+.risk-indicator {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.risk-indicator:hover:not(.loading) {
+  border-color: var(--card-border-hover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.risk-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.risk-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(244, 63, 94, 0.1);
+  color: rgb(244, 63, 94);
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.risk-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.risk-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.risk-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.risk-bar-container {
+  width: 100%;
+  height: 8px;
+  background: var(--neutral-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dark .risk-bar-container {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.risk-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.risk-bar--low {
+  background: linear-gradient(90deg, rgb(16, 185, 129), rgb(5, 150, 105));
+}
+
+.risk-bar--medium {
+  background: linear-gradient(90deg, rgb(251, 191, 36), rgb(217, 119, 6));
+}
+
+.risk-bar--high {
+  background: linear-gradient(90deg, rgb(244, 63, 94), rgb(190, 24, 93));
+}
+
+.risk-description {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+  margin-top: 0.25rem;
+}
+
+.risk-indicator.loading {
+  pointer-events: none;
+}
+
+.risk-skeleton {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-from),
+    var(--skeleton-to),
+    var(--skeleton-from)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.risk-skeleton.label {
+  width: 50%;
+  height: 12px;
+}
+
+.risk-skeleton.bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .risk-indicator {
+    padding: 1rem;
+  }
+}
